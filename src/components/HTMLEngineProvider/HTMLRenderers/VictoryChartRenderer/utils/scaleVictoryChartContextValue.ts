@@ -1,9 +1,9 @@
 import type {VictoryChartContextValue} from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/context/VictoryChartContext';
 import type {LabelItem, LegendItem} from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/types';
 
-import type {SkFont, SkTypeface} from '@shopify/react-native-skia';
+import type {SkFont, SkTypeface} from 'react-native-skia';
 
-import {Skia} from '@shopify/react-native-skia';
+import {Skia} from 'react-native-skia';
 
 import scalePixels from './scalePixels';
 

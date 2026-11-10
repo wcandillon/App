@@ -2,9 +2,9 @@ import FontUtils from '@styles/utils/FontUtils';
 import variables from '@styles/variables';
 
 import type {NativeBottomTabIcon, NativeBottomTabNavigationOptions} from '@react-navigation/bottom-tabs/unstable';
-import type {SkCanvas, SkParagraph, SkPath} from '@shopify/react-native-skia';
+import type {SkCanvas, SkParagraph, SkPath} from 'react-native-skia';
 
-import {BlendMode, FillType, FontWeight, ImageFormat, Skia, TextAlign} from '@shopify/react-native-skia';
+import {BlendMode, FillType, FontWeight, ImageFormat, Skia, TextAlign} from 'react-native-skia';
 import {PixelRatio} from 'react-native';
 
 import type {NativeTabGlyph, NativeTabName} from './NATIVE_TAB_GLYPHS';
@@ -56,10 +56,7 @@ function getGlyphPaths(name: NativeTabName): SkPath[] {
         if (!path) {
             continue;
         }
-        if (isEvenOdd) {
-            path.setFillType(FillType.EvenOdd);
-        }
-        paths.push(path);
+        paths.push(isEvenOdd ? Skia.PathBuilder.MakeFromPath(path).setFillType(FillType.EvenOdd).detach() : path);
     }
     glyphPathCache.set(name, paths);
     return paths;

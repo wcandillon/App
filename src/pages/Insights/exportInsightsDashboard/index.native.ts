@@ -1,7 +1,7 @@
 /** Shares a temporary PNG assembled from the page header, filters, and all mounted chart content. */
 import getPhotoSource from '@libs/fileDownload/getPhotoSource';
 
-import {Skia} from '@shopify/react-native-skia';
+import {Skia} from 'react-native-skia';
 import {PixelRatio, Platform} from 'react-native';
 import RNFS from 'react-native-fs';
 import Share from 'react-native-share';

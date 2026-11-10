@@ -6,7 +6,7 @@ import type {ChartDefaultTypeface} from '@components/Charts/types/chartSkiaTypef
 import getChartSkiaTypeface from '@components/Charts/utils/getChartSkiaTypeface';
 import type {LabelItem, TextAnchor} from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/types';
 
-import {Skia} from '@shopify/react-native-skia';
+import {Skia} from 'react-native-skia';
 
 import convertDegreeToRadian from './convertDegreeToRadian';
 import getSkiaLineMetrics from './getSkiaLineMetrics';

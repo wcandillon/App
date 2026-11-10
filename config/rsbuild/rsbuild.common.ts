@@ -107,7 +107,7 @@ const INCLUDED_NODE_MODULES = [
     'expo-image-manipulator',
     'expo-modules-core',
     'victory-native',
-    '@shopify/react-native-skia',
+    'react-native-skia',
 ];
 
 // Matches node_modules paths that are in the allowlist above
@@ -190,7 +190,7 @@ const getSharedConfiguration = ({file = '.env', isDevServer = false}: Environmen
                 'react-native$': 'react-native-web',
                 // Use victory-native source files instead of pre-compiled dist (which uses CommonJS exports)
                 'victory-native': path.resolve(dirname, '../../node_modules/victory-native/src/index.ts'),
-                // Required for @shopify/react-native-skia web support
+                // Required for react-native-skia web support
                 'react-native/Libraries/Image/AssetRegistry': false,
                 // @sentry/react-native references the optional expo-updates module. We do not install it,
                 // so web/Storybook bundles should treat it as unavailable instead of failing resolution.
@@ -432,7 +432,7 @@ const getCommonConfiguration = async ({file = '.env', platform = 'web', isDevSer
                 {from: 'node_modules/pdfjs-dist/cmaps/', to: 'cmaps/'},
                 // Group‑IB web SDK injection file
                 {from: 'web/snippets/gib.js', to: 'gib.js'},
-                // CanvasKit WASM binary for @shopify/react-native-skia web support (uses the full build). Emitted
+                // CanvasKit WASM binary for react-native-skia web support (uses the full build). Emitted
                 // under a versioned name so it can't be served stale against newer glue. The URL is passed to
                 // the app through the `__CANVASKIT_WASM_URL__` define above.
                 {from: 'node_modules/canvaskit-wasm/bin/full/canvaskit.wasm', to: CANVASKIT_WASM_FILENAME},

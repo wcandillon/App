@@ -9,11 +9,11 @@ import {
 } from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/utils/parseAttribute';
 import parseRawAxisStyle from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/utils/parseRawAxisStyle';
 
-import type {SkFont, SkTypeface} from '@shopify/react-native-skia';
+import type {SkFont, SkTypeface} from 'react-native-skia';
 import type {TNode} from 'react-native-render-html';
 import type {XAxisSide, YAxisSide} from 'victory-native';
 
-import {Skia} from '@shopify/react-native-skia';
+import {Skia} from 'react-native-skia';
 
 /**
  * For y-axis this returns the widest rendered label plus its offset from the axis line

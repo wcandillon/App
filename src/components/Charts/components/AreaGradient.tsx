@@ -1,6 +1,6 @@
 import type {PointsArray} from 'victory-native';
 
-import {LinearGradient, Path, vec} from '@shopify/react-native-skia';
+import {LinearGradient, Path, vec} from 'react-native-skia';
 import React from 'react';
 import {useAreaPath} from 'victory-native';
 

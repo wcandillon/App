@@ -9,7 +9,7 @@ import type {ProcessNodeResult} from '@components/HTMLEngineProvider/HTMLRendere
 import Text from '@components/Text';
 
 import type {TNode} from 'react-native-render-html';
-import type {SkFont, SkTypeface} from '@shopify/react-native-skia';
+import type {SkFont, SkTypeface} from 'react-native-skia';
 
 import React, {Activity} from 'react';
 
@@ -19,7 +19,7 @@ const mockTypeface = {} as SkTypeface;
 
 jest.mock('@components/Charts/utils/getVictoryChartTreeTypeface', () => jest.fn(() => mockTypeface));
 
-jest.mock('@shopify/react-native-skia', () => ({
+jest.mock('react-native-skia', () => ({
     Skia: {
         Font: jest.fn((typeface: SkTypeface, size: number) => ({getSize: () => size, dispose: mockDisposeScaledFont})),
     },

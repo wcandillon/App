@@ -7,13 +7,13 @@ import isSkiaWebSupported from '@components/Charts/SkiaWebChart/isSkiaWebSupport
 import {getCartesianChartHeight} from '@components/Charts/utils/chartHeights';
 
 import * as Sentry from '@sentry/react-native';
-import {WithSkiaWeb} from '@shopify/react-native-skia/lib/module/web';
+import {WithSkiaWeb} from 'react-native-skia/lib/module/web';
 import React from 'react';
 import {View} from 'react-native';
 
 jest.mock('@components/Charts/SkiaWebChart/isSkiaWebSupported', () => jest.fn());
 
-jest.mock('@shopify/react-native-skia/lib/module/web', () => ({WithSkiaWeb: jest.fn(() => null)}));
+jest.mock('react-native-skia/lib/module/web', () => ({WithSkiaWeb: jest.fn(() => null)}));
 
 jest.mock('@sentry/react-native', () => ({captureException: jest.fn(), setUser: jest.fn()}));
 
