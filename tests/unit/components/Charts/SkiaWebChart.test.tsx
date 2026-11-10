@@ -173,4 +173,33 @@ describe('SkiaWebChart', () => {
 
         consoleErrorSpy.mockRestore();
     });
+
+    it('should show the WebGL empty state and report its own warning when the renderer is refused a drawing surface', () => {
+        // Given a browser where the capability probe passed, but WebGL became unavailable before Skia created its
+        // context, so the renderer throws while mounting
+        mockIsSkiaWebSupported.mockReturnValue(true);
+        const surfaceError = new Error('Could not create a WebGL context');
+        mockWithSkiaWeb.mockImplementation(() => {
+            throw surfaceError;
+        });
+        // React logs caught render errors to console.error. Mock it to keep the test output clean.
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        // When the chart mounts
+        render(
+            <SkiaWebChart
+                getComponent={getComponent}
+                componentProps={{}}
+            />,
+        );
+
+        // Then the error boundary explains it as missing WebGL rather than a failed load, and the failure is
+        // reported under a fingerprint of its own so it does not look like a CanvasKit load failure in Sentry
+        expect(screen.getByText('common.unableToDisplayChart')).toBeTruthy();
+        expect(screen.getByText('common.webGLNotSupported')).toBeTruthy();
+        expect(screen.queryByText('common.chartFailedToLoad')).toBeNull();
+        expect(mockCaptureException).toHaveBeenCalledWith(surfaceError, expect.objectContaining({level: 'warning', fingerprint: ['skia-web-chart-surface-unavailable']}));
+
+        consoleErrorSpy.mockRestore();
+    });
 });

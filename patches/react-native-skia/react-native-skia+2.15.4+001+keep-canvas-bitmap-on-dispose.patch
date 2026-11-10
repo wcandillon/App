@@ -1,8 +1,8 @@
 diff --git a/node_modules/react-native-skia/lib/commonjs/views/SkiaWebRenderer.js b/node_modules/react-native-skia/lib/commonjs/views/SkiaWebRenderer.js
-index 98b27e8..26b80fe 100644
+index 1f842b2..22da6a3 100644
 --- a/node_modules/react-native-skia/lib/commonjs/views/SkiaWebRenderer.js
 +++ b/node_modules/react-native-skia/lib/commonjs/views/SkiaWebRenderer.js
-@@ -149,14 +149,12 @@ class WebGLRenderer {
+@@ -130,14 +130,12 @@ class WebGLRenderer {
    }
    dispose() {
      this.unsubscribe();
@@ -22,10 +22,10 @@ index 98b27e8..26b80fe 100644
  }
  
 diff --git a/node_modules/react-native-skia/lib/module/views/SkiaWebRenderer.js b/node_modules/react-native-skia/lib/module/views/SkiaWebRenderer.js
-index 3f69d11..6c927d8 100644
+index 2e2ef8d..d7040c4 100644
 --- a/node_modules/react-native-skia/lib/module/views/SkiaWebRenderer.js
 +++ b/node_modules/react-native-skia/lib/module/views/SkiaWebRenderer.js
-@@ -145,14 +145,12 @@ export class WebGLRenderer {
+@@ -126,14 +126,12 @@ export class WebGLRenderer {
    }
    dispose() {
      this.unsubscribe();
