@@ -12,7 +12,7 @@
     },
     "dependencies": {
         "canvaskit-wasm": "0.41.1",
-        "react-native-skia": "2.15.4",
+        "react-native-skia": "2.15.5",
         "react": "19.2.0",
         "react-native-render-html": "6.3.1"
     },
