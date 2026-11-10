@@ -1,7 +1,7 @@
 /** Captures live dashboard content without depending on WebGL's discarded drawing buffers. */
 import createDownloadLink from '@libs/fileDownload/createDownloadLink';
 
-import type {ISkiaViewApiWeb} from '@shopify/react-native-skia/lib/module/specs/NativeSkiaModule.web';
+import type {ISkiaViewApiWeb} from 'react-native-skia/lib/module/specs/NativeSkiaModule.web';
 
 import type ExportInsightsDashboard from './types';
 

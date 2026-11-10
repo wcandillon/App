@@ -2,7 +2,7 @@ import type {RefObject} from 'react';
 
 import {useEffect, useState} from 'react';
 
-/** Dispatched by the patched Skia web renderer when it cannot create any drawing surface (see `patches/@shopify/react-native-skia`). */
+/** Dispatched by the patched Skia web renderer when it cannot create any drawing surface (see `patches/react-native-skia`). */
 const SURFACE_UNAVAILABLE_EVENT = 'skia-surface-unavailable';
 
 /**

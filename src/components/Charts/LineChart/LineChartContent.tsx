@@ -40,7 +40,7 @@ import variables from '@styles/variables';
 import type {TupleToUnion} from 'type-fest';
 import type {CartesianChartRenderArg, ChartBounds, Scale} from 'victory-native';
 
-import {DashPathEffect} from '@shopify/react-native-skia';
+import {DashPathEffect} from 'react-native-skia';
 import React from 'react';
 import {GestureDetector} from 'react-native-gesture-handler';
 import Animated, {useAnimatedStyle, useDerivedValue, useSharedValue} from 'react-native-reanimated';

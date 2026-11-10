@@ -17,7 +17,7 @@ import viewRef from '@src/types/utils/viewRef';
 import type {ComponentType} from 'react';
 
 import * as Sentry from '@sentry/react-native';
-import {WithSkiaWeb} from '@shopify/react-native-skia/lib/module/web';
+import {WithSkiaWeb} from 'react-native-skia/lib/module/web';
 import React, {useRef, useState} from 'react';
 import {ErrorBoundary} from 'react-error-boundary';
 import {View} from 'react-native';

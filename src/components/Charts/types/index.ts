@@ -1,6 +1,6 @@
 import type {LABEL_ROTATIONS} from '@components/Charts/VictoryTheme';
 
-import type {SkParagraph} from '@shopify/react-native-skia';
+import type {SkParagraph} from 'react-native-skia';
 import type {ReactNode} from 'react';
 import type {NonEmptyTuple, ValueOf} from 'type-fest';
 

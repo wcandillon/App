@@ -1,9 +1,9 @@
 import VictoryTheme, {DASH_INTERVALS} from '@components/Charts/VictoryTheme';
 
-import type {Color} from '@shopify/react-native-skia';
+import type {Color} from 'react-native-skia';
 import type {ChartBounds, Scale} from 'victory-native';
 
-import {DashPathEffect, Line, vec} from '@shopify/react-native-skia';
+import {DashPathEffect, Line, vec} from 'react-native-skia';
 import React from 'react';
 
 type ChartGridLinesProps = {

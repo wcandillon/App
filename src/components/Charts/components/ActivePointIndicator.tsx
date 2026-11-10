@@ -1,7 +1,7 @@
 import type {DerivedValue, SharedValue} from 'react-native-reanimated';
 import type {MaybeNumber} from 'victory-native';
 
-import {Circle, Group, Line} from '@shopify/react-native-skia';
+import {Circle, Group, Line} from 'react-native-skia';
 import React from 'react';
 import {useDerivedValue} from 'react-native-reanimated';
 
