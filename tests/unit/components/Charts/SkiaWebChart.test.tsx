@@ -173,4 +173,64 @@ describe('SkiaWebChart', () => {
 
         consoleErrorSpy.mockRestore();
     });
+
+    it.each(['Could not create a WebGL context', 'Could not create a graphics context', 'Could not create a 2D context'])(
+        'should show the WebGL empty state and report its own warning when the renderer throws "%s"',
+        (message) => {
+            // Given a browser where the capability probe passed, but the renderer is refused a drawing surface
+            // afterwards and throws one of the errors react-native-skia has for it
+            mockIsSkiaWebSupported.mockReturnValue(true);
+            const surfaceError = new Error(message);
+            mockWithSkiaWeb.mockImplementation(() => {
+                throw surfaceError;
+            });
+            // React logs caught render errors to console.error. Mock it to keep the test output clean.
+            const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+            // When the chart mounts
+            render(
+                <SkiaWebChart
+                    getComponent={getComponent}
+                    componentProps={{}}
+                />,
+            );
+
+            // Then the error boundary explains it as missing WebGL rather than a failed load, and the failure is
+            // reported under a tag and fingerprint of its own so it does not look like a CanvasKit load failure in Sentry
+            expect(screen.getByText('common.unableToDisplayChart')).toBeTruthy();
+            expect(screen.getByText('common.webGLNotSupported')).toBeTruthy();
+            expect(screen.queryByText('common.chartFailedToLoad')).toBeNull();
+            expect(mockCaptureException).toHaveBeenCalledWith(
+                surfaceError,
+                expect.objectContaining({level: 'warning', tags: {context: 'skia-web-chart-surface'}, fingerprint: ['skia-web-chart-surface-unavailable']}),
+            );
+
+            consoleErrorSpy.mockRestore();
+        },
+    );
+
+    it('should keep reporting a CanvasKit binary mismatch as a load failure', () => {
+        // Given a browser that supports WebGL where react-native-skia rejects the wasm binary it downloaded
+        mockIsSkiaWebSupported.mockReturnValue(true);
+        const mismatchError = new Error("[react-native-skia] The CanvasKit binary loaded from /canvaskit.wasm doesn't match the canvaskit.js bundled with react-native-skia");
+        mockWithSkiaWeb.mockImplementation(() => {
+            throw mismatchError;
+        });
+        // React logs caught render errors to console.error. Mock it to keep the test output clean.
+        const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+
+        // When the chart mounts
+        render(
+            <SkiaWebChart
+                getComponent={getComponent}
+                componentProps={{}}
+            />,
+        );
+
+        // Then it is still explained and reported as a load failure, because WebGL is not what failed
+        expect(screen.getByText('common.chartFailedToLoad')).toBeTruthy();
+        expect(mockCaptureException).toHaveBeenCalledWith(mismatchError, expect.objectContaining({tags: {context: 'skia-web-chart-load'}, fingerprint: ['skia-web-chart-load-failure']}));
+
+        consoleErrorSpy.mockRestore();
+    });
 });
