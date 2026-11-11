@@ -174,7 +174,7 @@ describe('SkiaWebChart', () => {
         consoleErrorSpy.mockRestore();
     });
 
-    it.each(['Could not create a WebGL context', 'Could not create a graphics context', 'Could not create a 2D context', 'Could not create surface'])(
+    it.each(['Could not create a WebGL context', 'Could not create a graphics context', 'Could not create a 2D context'])(
         'should show the WebGL empty state and report its own warning when the renderer throws "%s"',
         (message) => {
             // Given a browser where the capability probe passed, but the renderer is refused a drawing surface

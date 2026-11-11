@@ -77,15 +77,14 @@ function ChartSkiaLoading() {
 
 /**
  * Matches the errors react-native-skia throws when the browser cannot give its renderer a drawing surface: no
- * WebGL context (hardware acceleration disabled, GPU blocked by the browser), no 2D context for the canvas, or
- * no surface on the context. The capability probe cannot rule these out, because the context is created only
+ * WebGL context (hardware acceleration disabled, GPU blocked by the browser), no graphics context on it, or no
+ * 2D context for the canvas. The capability probe cannot rule these out, because the context is created only
  * after the CanvasKit WASM module has loaded and WebGL can become unavailable in between.
  *
- * The boundary only sees the ones thrown while the renderer is created, in a layout effect. A surface that
- * cannot be created for a later draw throws from a microtask or a ResizeObserver callback, which no boundary
- * can catch, and leaves that canvas blank.
+ * They are thrown while the renderer is created, in a layout effect, where the boundary catches them. A surface
+ * that cannot be created for a later draw does not throw: the view skips that frame.
  */
-const SURFACE_UNAVAILABLE_ERROR_PATTERN = /webgl context|graphics context|2D context|Could not create surface/i;
+const SURFACE_UNAVAILABLE_ERROR_PATTERN = /webgl context|graphics context|2D context/i;
 
 function isSurfaceUnavailableError(error: unknown): boolean {
     return error instanceof Error && SURFACE_UNAVAILABLE_ERROR_PATTERN.test(error.message);
