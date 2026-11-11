@@ -1,7 +1,7 @@
 import colors from '@styles/theme/colors';
 import type {ThemeColors} from '@styles/theme/types';
 
-import type {Color} from '@shopify/react-native-skia';
+import type {Color} from 'react-native-skia';
 import type {ColorValue} from 'react-native';
 
 /**

@@ -1,4 +1,4 @@
-import type {Color, SkTypeface} from '@shopify/react-native-skia';
+import type {Color, SkTypeface} from 'react-native-skia';
 import type {ComponentProps} from 'react';
 import type {CustomRendererProps, TBlock, TNode} from 'react-native-render-html';
 import type {ValueOf} from 'type-fest';

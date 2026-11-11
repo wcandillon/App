@@ -6,10 +6,10 @@ import useTheme from '@hooks/useTheme';
 
 import variables from '@styles/variables';
 
-import type {SkTypefaceFontProvider} from '@shopify/react-native-skia';
+import type {SkTypefaceFontProvider} from 'react-native-skia';
 import type {ChartBounds, Scale} from 'victory-native';
 
-import {DashPathEffect, Line, Paragraph, RoundedRect, vec} from '@shopify/react-native-skia';
+import {DashPathEffect, Line, Paragraph, RoundedRect, vec} from 'react-native-skia';
 import React from 'react';
 
 type ChartAverageLineProps = {

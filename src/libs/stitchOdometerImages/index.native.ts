@@ -4,7 +4,7 @@ import {logReceiptAdoptFailed} from '@libs/telemetry/ReceiptObservability';
 
 import type {FileObject} from '@src/types/utils/Attachment';
 
-import {ImageFormat, Skia} from '@shopify/react-native-skia';
+import {ImageFormat, Skia} from 'react-native-skia';
 import RNFS from 'react-native-fs';
 
 import STITCHED_ODOMETER_FILENAME_PREFIX from './constants';

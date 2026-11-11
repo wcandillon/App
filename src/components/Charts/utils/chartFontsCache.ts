@@ -5,9 +5,9 @@ import Log from '@libs/Log';
 
 import ObjectUtils from '@src/types/utils/ObjectUtils';
 
-import type {DataModule, SkTypeface} from '@shopify/react-native-skia';
+import type {DataModule, SkTypeface} from 'react-native-skia';
 
-import {Skia, unwrapModule} from '@shopify/react-native-skia';
+import {Skia, unwrapModule} from 'react-native-skia';
 import {Image} from 'react-native';
 
 import buildSkiaFontManager from './buildSkiaFontManager';

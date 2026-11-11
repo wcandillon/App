@@ -11,9 +11,9 @@ import useTheme from '@hooks/useTheme';
 
 import type {SelectedTimezone} from '@src/types/onyx/PersonalDetails';
 
-import type {Color, SkFont} from '@shopify/react-native-skia';
+import type {Color, SkFont} from 'react-native-skia';
 
-import {Text as SkText} from '@shopify/react-native-skia';
+import {Text as SkText} from 'react-native-skia';
 import React from 'react';
 
 type VictoryChartLabelsProps = LabelItem & {
