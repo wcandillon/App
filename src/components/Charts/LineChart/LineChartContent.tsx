@@ -2,6 +2,7 @@ import ActivePointIndicator from '@components/Charts/components/ActivePointIndic
 import AreaGradient from '@components/Charts/components/AreaGradient';
 import ChartAverageLine from '@components/Charts/components/ChartAverageLine';
 import ChartGridLines from '@components/Charts/components/ChartGridLines';
+import ChartLineRun from '@components/Charts/components/ChartLineRun';
 import ChartTooltipLayer from '@components/Charts/components/ChartTooltipLayer';
 import ChartXAxisLabels from '@components/Charts/components/ChartXAxisLabels';
 import ChartYAxisLabels from '@components/Charts/components/ChartYAxisLabels';
@@ -29,7 +30,7 @@ import {
 } from '@components/Charts/utils';
 import {getCartesianChartHeight, getXAxisLabelSpace} from '@components/Charts/utils/chartHeights';
 import type {LineRun} from '@components/Charts/utils/getLineRuns';
-import VictoryTheme, {CARTESIAN_Y_AXIS, DASH_INTERVALS, GLYPH_PADDING, LABEL_PADDING, LABEL_ROTATIONS, SIN_45} from '@components/Charts/VictoryTheme';
+import VictoryTheme, {CARTESIAN_Y_AXIS, GLYPH_PADDING, LABEL_PADDING, LABEL_ROTATIONS, SIN_45} from '@components/Charts/VictoryTheme';
 
 import useStyleUtils from '@hooks/useStyleUtils';
 import useTheme from '@hooks/useTheme';
@@ -43,8 +44,7 @@ import type {CartesianChartRenderArg, ChartBounds, Scale} from 'victory-native';
 import React from 'react';
 import {GestureDetector} from 'react-native-gesture-handler';
 import Animated, {useAnimatedStyle, useDerivedValue, useSharedValue} from 'react-native-reanimated';
-import {DashPathEffect} from 'react-native-skia';
-import {CartesianChart, Line} from 'victory-native';
+import {CartesianChart} from 'victory-native';
 
 import type {CartesianChartProps, ChartDataPoint} from '..';
 
@@ -194,6 +194,7 @@ function LineChartCanvas({
         plotTop.set(bounds.top);
         plotLeft.set(bounds.left);
         plotRight.set(bounds.right);
+        chartBottom.set(bounds.bottom);
     };
 
     const labelSpace = getXAxisLabelSpace(xAxisLabelHeight);
@@ -257,7 +258,6 @@ function LineChartCanvas({
 
     const renderOutside = (args: CartesianChartRenderArg<TupleToUnion<typeof chartData>, string>) => {
         const chartBoundsBottom = args.chartBounds.bottom;
-        chartBottom.set(chartBoundsBottom);
         const primaryPoints = args.points[primarySeriesKey] ?? [];
 
         return (
@@ -267,7 +267,9 @@ function LineChartCanvas({
                     .map((run) => (
                         <AreaGradient
                             key={`area-${run.start}`}
-                            points={primaryPoints.slice(run.start, run.end + 1)}
+                            points={primaryPoints}
+                            start={run.start}
+                            end={run.end}
                             baselineY={chartBoundsBottom}
                             color={primarySeriesColor}
                         />
@@ -283,17 +285,14 @@ function LineChartCanvas({
                     return (
                         <React.Fragment key={seriesItem.key}>
                             {lineRuns.map((run) => (
-                                <Line
+                                <ChartLineRun
                                     key={`line-${run.start}`}
-                                    points={seriesPoints.slice(run.start, run.end + 1)}
+                                    points={seriesPoints}
+                                    start={run.start}
+                                    end={run.end}
                                     color={color}
-                                    strokeWidth={VictoryTheme.line.strokeWidth}
-                                    strokeCap="round"
-                                    strokeJoin="round"
-                                    curveType="linear"
-                                >
-                                    {run.isDashed && <DashPathEffect intervals={DASH_INTERVALS} />}
-                                </Line>
+                                    isDashed={run.isDashed}
+                                />
                             ))}
                         </React.Fragment>
                     );

@@ -6,7 +6,7 @@ import {useChartInteractions} from '@components/Charts/hooks';
 import type {HitTestArgs, ResolveTargetIndexArgs} from '@components/Charts/hooks';
 import {X_KEY} from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/constants';
 import {useVictoryChartContext} from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/context/VictoryChartContext';
-import type {CartesianChartData, PolarChartData, YKey} from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/types';
+import type {CartesianChartData, CartesianChartLayoutArgs, PolarChartData, YKey} from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/types';
 import getChartPointMetadataKey from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/utils/getChartPointMetadataKey';
 import {getVictoryBarInteractionGeometry, isCursorInVerticalBar} from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/utils/getVictoryBarInteractionGeometry';
 import type {BarSeriesLayoutConfig} from '@components/HTMLEngineProvider/HTMLRenderers/VictoryChartRenderer/utils/getVictoryBarInteractionGeometry';
@@ -25,7 +25,6 @@ import {buildSearchQueryJSON} from '@libs/SearchQueryUtils';
 import ROUTES from '@src/ROUTES';
 
 import type {TNode} from 'react-native-render-html';
-import type {CartesianChartRenderArg} from 'victory-native';
 
 import {useState} from 'react';
 import {useAnimatedReaction, useSharedValue} from 'react-native-reanimated';
@@ -147,14 +146,28 @@ function getActiveTooltipData(
     return getVictoryBarTooltipData(activeBar, visibleVerticalBarValues, numberFormat);
 }
 
-function useVictoryBarInteractions() {
-    const {tnode, data, yKeys, pointMetadata, isHorizontal, pixelScale} = useVictoryChartContext();
-    const {numberFormat} = useLocalize();
-    const {getSearchKeyForQuery} = useSearchQueryActions();
+/**
+ * Returns the chart's bars that react to hover and tap, with what laying them out and describing them needs.
+ * A hook of its own so that React Compiler caches the result: computed next to the hooks of `useVictoryBarInteractions`,
+ * it is rebuilt on every render, and so is every function using it, like the one syncing the bar positions.
+ */
+function useInteractiveBars() {
+    const {tnode, data, yKeys, pointMetadata, isHorizontal} = useVictoryChartContext();
     const rows = Object.values(data).filter(isCartesianChartData);
     const barSeriesConfig = isHorizontal ? {} : collectVerticalBarSeries(tnode.children);
-    const interactiveBars = buildInteractiveBars(rows, yKeys, barSeriesConfig, pointMetadata);
-    const visibleVerticalBarValues = getVisibleVerticalBarValues(rows, yKeys, barSeriesConfig);
+
+    return {
+        barSeriesConfig,
+        interactiveBars: buildInteractiveBars(rows, yKeys, barSeriesConfig, pointMetadata),
+        visibleVerticalBarValues: getVisibleVerticalBarValues(rows, yKeys, barSeriesConfig),
+    };
+}
+
+function useVictoryBarInteractions() {
+    const {pixelScale} = useVictoryChartContext();
+    const {numberFormat} = useLocalize();
+    const {getSearchKeyForQuery} = useSearchQueryActions();
+    const {barSeriesConfig, interactiveBars, visibleVerticalBarValues} = useInteractiveBars();
     const pointWidth = useSharedValue<number[]>([]);
     const hasSearchQuery = useSharedValue<number[]>([]);
     const chartBottom = useSharedValue(0);
@@ -237,8 +250,7 @@ function useVictoryBarInteractions() {
     const activeBar = activeBarIndex >= 0 ? interactiveBars.at(activeBarIndex) : undefined;
     const activeTooltipData = getActiveTooltipData(activeBar, visibleVerticalBarValues, numberFormat);
 
-    const syncBarPositions = (renderArgs: CartesianChartRenderArg<CartesianChartData, YKey>) => {
-        const {points, chartBounds, yScale} = renderArgs;
+    const syncBarPositions = ({points, chartBounds, yScale}: CartesianChartLayoutArgs) => {
         const xs: number[] = [];
         const ys: number[] = [];
         const widths: number[] = [];

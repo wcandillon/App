@@ -1,6 +1,8 @@
-import {BAR_CORNER_RADIUS, BAR_GROUP_INNER_GAP, BAR_HIT_GAP_RATIO, VERTICAL_BAR_DOMAIN_PADDING} from '@components/Charts/barChartConstants';
+import {BAR_GROUP_INNER_GAP, BAR_HIT_GAP_RATIO, VERTICAL_BAR_DOMAIN_PADDING} from '@components/Charts/barChartConstants';
 import ChartAverageLine from '@components/Charts/components/ChartAverageLine';
+import ChartBars from '@components/Charts/components/ChartBars';
 import ChartGridLines from '@components/Charts/components/ChartGridLines';
+import ChartStackedBars from '@components/Charts/components/ChartStackedBars';
 import ChartTooltipLayer from '@components/Charts/components/ChartTooltipLayer';
 import ChartXAxisLabels from '@components/Charts/components/ChartXAxisLabels';
 import ChartYAxisLabels from '@components/Charts/components/ChartYAxisLabels';
@@ -15,8 +17,9 @@ import {
     useSyncPointPositions,
     useReadyCartesianCanvas,
 } from '@components/Charts/hooks';
-import type {ChartSeries, WrappedLabelConfig} from '@components/Charts/types';
+import type {WrappedLabelConfig} from '@components/Charts/types';
 import {getBarLayout, getCartesianPlotBounds, getSteppedLabelLayout, getXAxisLabel, getYAxisLabelWidth, getYAxisTickLayout} from '@components/Charts/utils';
+import {getBarSlotOffset} from '@components/Charts/utils/barRects';
 import {getBarChartHeight, getXAxisLabelSpace} from '@components/Charts/utils/chartHeights';
 import {getSeriesStacks, getStackTotalsData, getStackTotalSeries} from '@components/Charts/utils/stackedBars';
 import VictoryTheme, {CARTESIAN_Y_AXIS, GLYPH_PADDING, MAX_BAR_LABEL_LINES} from '@components/Charts/VictoryTheme';
@@ -30,13 +33,12 @@ import useThemeStyles from '@hooks/useThemeStyles';
 import variables from '@styles/variables';
 
 import type {TupleToUnion} from 'type-fest';
-import type {CartesianChartRenderArg, ChartBounds, PointsArray, Scale} from 'victory-native';
+import type {CartesianChartRenderArg, ChartBounds, Scale} from 'victory-native';
 
 import {View} from 'react-native';
 import {GestureDetector} from 'react-native-gesture-handler';
 import Animated, {useAnimatedStyle, useSharedValue} from 'react-native-reanimated';
-import {Group, Skia} from 'react-native-skia';
-import {Bar, CartesianChart, StackedBar} from 'victory-native';
+import {CartesianChart} from 'victory-native';
 
 import type BarChartProps from './types';
 import type {BarChartContentProps} from './types';
@@ -110,8 +112,6 @@ function VerticalBarChartCanvas({
     const plotBounds = getCartesianPlotBounds(chartWidth, chartPaddingRight);
     const barLayout = getBarLayout(plotBounds.width, data.length);
     const groupedBarWidth = (barLayout.barWidth - BAR_GROUP_INNER_GAP * (barSlotCount - 1)) / barSlotCount;
-    // Moves a bar from the group's center to the middle of its slot, counted from the group's left edge, so the series or stacks sit side by side
-    const getSlotOffset = (slot: number) => -barLayout.barWidth / 2 + slot * (groupedBarWidth + BAR_GROUP_INNER_GAP) + groupedBarWidth / 2;
 
     const measurements = useChartLabelMeasurements(labelData, fontManager, variables.iconSizeExtraSmall);
 
@@ -179,6 +179,7 @@ function VerticalBarChartCanvas({
     const handleChartBoundsChange = (bounds: ChartBounds) => {
         plotTop.set(bounds.top);
         plotBottom.set(bounds.bottom);
+        chartBottom.set(bounds.bottom);
         yZero.set(0);
     };
 
@@ -217,79 +218,12 @@ function VerticalBarChartCanvas({
         cursor: isCursorOverClickable.get() ? 'pointer' : 'auto',
     }));
 
-    const renderBar = (point: PointsArray[number], chartBounds: ChartBounds, seriesItem: ChartSeries, seriesIndex: number) => {
-        const dataPoint = data.at(Number(point.xValue));
-        if (!dataPoint || typeof point.y !== 'number') {
-            return null;
-        }
-
-        const pointColor = seriesIndex === 0 ? dataPoint.color : undefined;
-        const color = dataPoint.seriesColors?.[seriesItem.key] ?? pointColor ?? seriesItem.color ?? VictoryTheme.colors.default;
-
-        return (
-            <Bar
-                key={`bar-${seriesItem.key}-${point.xValue}`}
-                points={[{...point, x: point.x + getSlotOffset(seriesIndex)}]}
-                chartBounds={chartBounds}
-                color={color}
-                barWidth={groupedBarWidth}
-                barCount={data.length}
-                roundedCorners={{topLeft: BAR_CORNER_RADIUS, topRight: BAR_CORNER_RADIUS, bottomLeft: BAR_CORNER_RADIUS, bottomRight: BAR_CORNER_RADIUS}}
-            />
-        );
-    };
-
-    /**
-     * Returns the rounded outline of a stack's bars, from zero to each bar's total.
-     * Rounding the end segments instead fails when an end segment is too short to show its corners, like a stage that took minutes in a chart of days.
-     */
-    const getStackOutline = (position: number, offset: number, xScale: Scale, yScale: Scale) => {
-        const totalKey = stackTotalSeries.at(position)?.key;
-        const outline = Skia.PathBuilder.Make();
-        for (const [index, point] of plottedData.entries()) {
-            const total = totalKey ? point.values[totalKey] : undefined;
-            if (!total) {
-                continue;
-            }
-            const top = Math.min(yScale(total), yScale(0));
-            const height = Math.abs(yScale(total) - yScale(0));
-            const bar = Skia.XYWHRect(xScale(index) + offset - groupedBarWidth / 2, top, groupedBarWidth, height);
-            outline.addRRect(Skia.RRectXY(bar, BAR_CORNER_RADIUS, BAR_CORNER_RADIUS));
-        }
-        return outline.build();
-    };
-
-    const renderStack = (stack: ChartSeries[], position: number, points: Record<string, PointsArray>, chartBounds: ChartBounds, xScale: Scale, yScale: Scale) => {
-        // The previous period's stack is drawn left of the current one, reading in time order
-        const offset = getSlotOffset(stacks.length - 1 - position);
-        return (
-            <Group
-                key={`stack-${stack.at(0)?.stackIndex}`}
-                clip={getStackOutline(position, offset, xScale, yScale)}
-            >
-                <StackedBar
-                    points={stack.map((seriesItem) =>
-                        (points[seriesItem.key] ?? []).map((point) => ({
-                            ...point,
-                            x: point.x + offset,
-                        })),
-                    )}
-                    chartBounds={chartBounds}
-                    barWidth={groupedBarWidth}
-                    barCount={data.length}
-                    colors={stack.map((seriesItem) => seriesItem.color ?? VictoryTheme.colors.default)}
-                />
-            </Group>
-        );
-    };
-
     const renderOutside = (args: CartesianChartRenderArg<TupleToUnion<typeof chartData>, string>) => {
         if (xAxisLabelHeight === undefined) {
             return null;
         }
 
         const chartBoundsBottom = args.chartBounds.bottom;
-        chartBottom.set(chartBoundsBottom);
 
         return (
             <>
@@ -378,10 +312,32 @@ function VerticalBarChartCanvas({
                                 chartBounds={chartBounds}
                                 color={theme.border}
                             />
-                            {groupedBarWidth > 0 && isStacked && stacks.map((stack, position) => renderStack(stack, position, points, chartBounds, xScale, yScale))}
                             {groupedBarWidth > 0 &&
-                                !isStacked &&
-                                barSeries.flatMap((seriesItem, seriesIndex) => (points[seriesItem.key] ?? []).map((point) => renderBar(point, chartBounds, seriesItem, seriesIndex)))}
+                                isStacked &&
+                                stacks.map((stack, position) => (
+                                    <ChartStackedBars
+                                        key={`stack-${stack.at(0)?.stackIndex}`}
+                                        stack={stack}
+                                        points={points}
+                                        totalsData={plottedData}
+                                        totalKey={stackTotalSeries.at(position)?.key}
+                                        xScale={xScale}
+                                        yScale={yScale}
+                                        barWidth={groupedBarWidth}
+                                        // The previous period's stack is drawn left of the current one, reading in time order
+                                        offset={getBarSlotOffset(stacks.length - 1 - position, barLayout.barWidth, groupedBarWidth)}
+                                    />
+                                ))}
+                            {groupedBarWidth > 0 && !isStacked && (
+                                <ChartBars
+                                    points={points}
+                                    series={barSeries}
+                                    data={data}
+                                    yScale={yScale}
+                                    barWidth={groupedBarWidth}
+                                    groupWidth={barLayout.barWidth}
+                                />
+                            )}
                         </>
                     )}
                 </CartesianChart>

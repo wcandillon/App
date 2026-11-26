@@ -5,8 +5,14 @@ import {LinearGradient, Path, vec} from 'react-native-skia';
 import {useAreaPath} from 'victory-native';
 
 type AreaGradientProps = {
-    /** Data points that define the area to fill */
+    /** Every data point of the series the area belongs to */
     points: PointsArray;
+
+    /** Index of the first point of the area to fill */
+    start: number;
+
+    /** Index of the last point of the area to fill, inclusive */
+    end: number;
 
     /** Baseline y-coordinate where the gradient fades to its faint end (typically the chart's bottom) */
     baselineY: number;
@@ -15,10 +21,13 @@ type AreaGradientProps = {
     color: string;
 };
 
-function AreaGradient({points, baselineY, color}: AreaGradientProps) {
-    const {path} = useAreaPath(points, baselineY, {curveType: 'linear'});
+function AreaGradient({points, start, end, baselineY, color}: AreaGradientProps) {
+    // Sliced here rather than by the chart's render callback, which runs on every render of the chart.
+    // Victory rebuilds the path whenever it is given a new points array, and this one is only new when the series or the range change.
+    const areaPoints = points.slice(start, end + 1);
+    const {path} = useAreaPath(areaPoints, baselineY, {curveType: 'linear'});
 
-    const topY = Math.min(baselineY, ...points.flatMap((p) => (typeof p.y === 'number' ? [p.y] : [])));
+    const topY = Math.min(baselineY, ...areaPoints.flatMap((p) => (typeof p.y === 'number' ? [p.y] : [])));
 
     return (
         <Path

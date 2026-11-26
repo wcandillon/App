@@ -2,7 +2,7 @@ import type {ComponentProps} from 'react';
 import type {CustomRendererProps, TBlock, TNode} from 'react-native-render-html';
 import type {Color, SkTypeface} from 'react-native-skia';
 import type {ValueOf} from 'type-fest';
-import type {CartesianChart} from 'victory-native';
+import type {CartesianChart, CartesianChartRenderArg} from 'victory-native';
 
 import type {CHART_TYPE, COLOR_KEY, LABEL_KEY, VALUE_KEY, X_KEY, Y_KEY_PREFIX} from './constants';
 
@@ -160,6 +160,9 @@ type LegendItem = {
 /** Shared CartesianChart prop type used by the orchestrator, parsers, and Cartesian sub-component. */
 type CartesianChartProps = ComponentProps<typeof CartesianChart<CartesianChartData, keyof CartesianChartData, YKey>>;
 
+/** Where the CartesianChart laid out its points, the part of its render arguments that only changes with the data, the scales or the size. */
+type CartesianChartLayoutArgs = Pick<CartesianChartRenderArg<CartesianChartData, YKey>, 'points' | 'chartBounds' | 'yScale'>;
+
 /** Fully merged result of walking the HTML tnode tree. */
 type ProcessNodeResult = {
     data: Record<string, CartesianChartData> | Record<string, PolarChartData>;
@@ -201,6 +204,7 @@ export type {
     CartesianChartData,
     ChartPointMetadata,
     CartesianChartProps,
+    CartesianChartLayoutArgs,
     TextAnchor,
     ResolvedPieLabel,
     LabelItem,
